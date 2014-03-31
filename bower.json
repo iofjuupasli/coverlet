@@ -1,0 +1,29 @@
+{
+  "name": "coverlet",
+  "version": "0.0.0",
+  "homepage": "https://github.com/iofjuupasli/coverlet",
+  "authors": [
+    "iofjuupasli <iofjuupasli@gmail.com>"
+  ],
+  "moduleType": [
+    "amd",
+    "es6",
+    "globals"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "libs",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "1",
+    "knockout.js": "~3.0.0",
+    "knockout.mapping": "~2.0.1",
+    "lodash": "~2.4.1",
+    "knockout.validation": "~1.0.2"
+  }
+}
