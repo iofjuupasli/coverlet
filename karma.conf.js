@@ -15,8 +15,8 @@ module.exports = function (config) {
         files: [
             'libs/jquery/dist/jquery.js',
             'libs/knockout.js/knockout.debug.js',
-            'libs/knockout.mapping/knockout.mapping.js',
-            'libs/knockout.validation/Dist/knockout.validation.js',
+            'libs/knockout-mapping/knockout.mapping.js',
+            'libs/knockout-validation/Dist/knockout.validation.js',
             'libs/lodash/dist/lodash.js',
 
             'src/*.js',
