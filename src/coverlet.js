@@ -395,6 +395,19 @@
             }));
 
             that.index = ko.computed(function () {
+                function manyToManyMap(source, first, second) {
+                    return _.each(_.groupBy(source, first), function (group, key, collection) {
+                        collection[key] = _.indexBy(group, second);
+                    });
+                }
+
+                if (_.isArray(that.options.id) && that.options.id.length === 2) {
+                    return manyToManyMap(that.collection(), function (item) {
+                        return item.model[that.options.id[0]]();
+                    }, function (item) {
+                        return item.model[that.options.id[1]]();
+                    });
+                }
                 return _.indexBy(that.collection(), function (item) {
                     return item.model[that.options.id]();
                 });
