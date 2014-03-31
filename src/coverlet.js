@@ -293,13 +293,13 @@
 
             that.restClient = restClient;
 
-            _.defaults(options, {
+            that.options = options || {};
+            _.defaults(that.options, {
                 id: 'id',
                 immediateCommit: false,
                 rateLimit: 200,
                 validators: {}
             });
-            that.options = options;
 
             that.model = ko.mapping.fromJS(data);
 
@@ -382,13 +382,13 @@
 
             that.restClient = restClient;
 
-            _.defaults(options, {
+            that.options = options || {};
+            _.defaults(that.options, {
                 id: 'id',
                 immediateCommit: false,
                 rateLimit: 200,
                 validators: {}
             });
-            that.options = options;
 
             that.collection = ko.observableArray(_.map(data, function (item) {
                 return new Model(item, that.restClient, that.options);
