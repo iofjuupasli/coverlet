@@ -1,1 +1,4 @@
 libs/
+node_modules/
+test/coverage/
+test/results/
