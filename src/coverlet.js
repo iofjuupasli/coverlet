@@ -295,7 +295,8 @@
 
             that.options = options || {};
             _.defaults(that.options, {
-                id: 'id',
+                id: null,
+                indexes: null,
                 immediateCommit: false,
                 rateLimit: 200,
                 validators: {}
@@ -384,7 +385,8 @@
 
             that.options = options || {};
             _.defaults(that.options, {
-                id: 'id',
+                id: null,
+                indexes: null,
                 immediateCommit: false,
                 rateLimit: 200,
                 validators: {}
@@ -394,34 +396,45 @@
                 return new Model(item, that.restClient, that.options);
             }));
 
-            that.index = ko.computed(function () {
-                function manyToManyMap(source, first, second) {
-                    return _.each(_.groupBy(source, first), function (group, key, collection) {
-                        collection[key] = _.indexBy(group, second);
+            that.index = {};
+            if (that.options.id) {
+                that.index.id = ko.computed(function () {
+                    return _.indexBy(that.collection(), function (item) {
+                        return item.model[that.options.id]();
                     });
-                }
+                });
+            }
 
-                if (_.isArray(that.options.id) && that.options.id.length === 2) {
-                    return manyToManyMap(that.collection(), function (item) {
-                        return item.model[that.options.id[0]]();
-                    }, function (item) {
-                        return item.model[that.options.id[1]]();
+            function manyToManyMap(source, first, second) {
+                return _.each(_.groupBy(source, first), function (group, key, collection) {
+                    collection[key] = _.indexBy(group, second);
+                });
+            }
+
+            _.forEach(that.options.indexes, function (index) {
+                if (_.isArray(index) && index.length === 2) {
+                    that.index[index[0] + ':' + index[1]] = ko.computed(function () {
+                        return manyToManyMap(that.collection(), function (item) {
+                            return item.model[index[0]]();
+                        }, function (item) {
+                            return item.model[index[1]]();
+                        });
                     });
                 }
                 return _.indexBy(that.collection(), function (item) {
-                    return item.model[that.options.id]();
+                    return item.model[index]();
                 });
             });
         }
 
         Class.prototype.map = function (data) {
             var that = this;
-            var toDelete = _.difference(_.keys(that.index()), _.pluck(data, that.options.id));
+            var toDelete = _.difference(_.keys(that.index.id()), _.pluck(data, that.options.id));
             _.forEach(toDelete, function (id) {
-                that.collection.remove(that.index()[id]);
+                that.collection.remove(that.index.id()[id]);
             });
             _.forEach(data, function (newItem) {
-                var oldItem = that.index()[newItem[that.options.id]];
+                var oldItem = that.index.id()[newItem[that.options.id]];
                 if (!oldItem) {
                     that.collection.push(new Model(newItem, that.restClient, that.options));
                 } else {
@@ -461,7 +474,7 @@
             if (!id) {
                 throw new Error('"id" argument is required');
             }
-            var item = that.index()[id];
+            var item = that.index.id()[id];
             item.del();
             that.collection.remove(item);
             return item;
