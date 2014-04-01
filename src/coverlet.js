@@ -44,7 +44,7 @@
                 url: that.url,
                 dataType: 'json',
                 contentType: 'application/json',
-                data: JSON.stringify(item)
+                data: mapping.toJSON(item)
             });
         };
 
@@ -55,7 +55,7 @@
                 url: that.url + '/' + item.id,
                 dataType: 'json',
                 contentType: 'application/json',
-                data: JSON.stringify(item)
+                data: mapping.toJSON(item)
             });
         };
 
@@ -312,16 +312,16 @@
                 return (!ko.validation.group(that.model)().length);
             });
 
-            var lastValue = ko.observable(ko.toJSON(that.model));
+            var lastValue = ko.observable(mapping.toJSON(that.model));
             that.isDirty = ko.computed({
                 read: function () {
-                    return ko.toJSON(that.model) !== lastValue();
+                    return mapping.toJSON(that.model) !== lastValue();
                 },
                 write: function (newValue) {
                     if (newValue) {
                         lastValue('');
                     } else {
-                        lastValue(ko.toJSON(that.model));
+                        lastValue(mapping.toJSON(that.model));
                     }
                 }
             });
@@ -345,7 +345,7 @@
             if (!invalid && !that.isValid()) {
                 return $.Deffered().reject('model is invalid');
             }
-            return that.restClient[that.model[that.options.id]() ? 'put' : 'post'](ko.toJSON(that.model))
+            return that.restClient[that.model[that.options.id]() ? 'put' : 'post'](mapping.toJSON(that.model))
                 .then(function (newData) {
                     if (newData) {
                         that.map(newData);
