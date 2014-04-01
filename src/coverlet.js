@@ -44,7 +44,7 @@
                 url: that.url,
                 dataType: 'json',
                 contentType: 'application/json',
-                data: mapping.toJS(item)
+                data: JSON.stringify(item)
             });
         };
 
@@ -55,7 +55,7 @@
                 url: that.url + '/' + item.id,
                 dataType: 'json',
                 contentType: 'application/json',
-                data: mapping.toJS(item)
+                data: JSON.stringify(item)
             });
         };
 
@@ -304,7 +304,20 @@
 
             that.model = mapping.fromJS(data);
 
+            if (data[that.options.id] === undefined) {
+                (function () {
+                    var objWithNewProperty = {};
+                    objWithNewProperty[that.options.id] = null;
+                    mapping.fromJS(objWithNewProperty, that.model);
+                }());
+            }
+
             _.forOwn(options.validators, function (validator, key) {
+                if (that.model[key] === undefined) {
+                    var objWithNewProperty = {};
+                    objWithNewProperty[key] = null;
+                    mapping.fromJS(objWithNewProperty, that.model);
+                }
                 that.model[key] = that.model[key].extend(validator);
             });
 
@@ -345,9 +358,10 @@
             if (!invalid && !that.isValid()) {
                 return $.Deffered().reject('model is invalid');
             }
-            return that.restClient[that.model[that.options.id]() ? 'put' : 'post'](mapping.toJSON(that.model))
+            var id = that.model[that.options.id]();
+            return that.restClient[(id !== undefined && id !== null) ? 'put' : 'post'](mapping.toJS(that.model))
                 .then(function (newData) {
-                    if (newData) {
+                    if (newData && newData[that.options.id] !== undefined) {
                         that.map(newData);
                     }
                     that.isDirty(false);
@@ -358,8 +372,10 @@
         Class.prototype.fetch = function () {
             var that = this;
             return that.restClient.get(that.model[that.options.id]())
-                .then(function (data) {
-                    that.map(data);
+                .then(function (newData) {
+                    if (newData && newData[that.options.id] !== undefined) {
+                        that.map(newData);
+                    }
                     return that;
                 });
         };
@@ -367,8 +383,9 @@
         Class.prototype.del = function () {
             var that = this;
             return that.restClient.del(that.model[that.options.id]())
-                .then(function () {
+                .then(function (data) {
                     that.model[that.options.id](null);
+                    return data;
                 });
         };
 
@@ -436,7 +453,7 @@
 
         Class.prototype.map = function (data) {
             var that = this;
-            var toDelete = _.difference(_.keys(that.index.id()), _.pluck(data, that.options.id));
+            var toDelete = _.without(_.difference(_.keys(that.index.id()), _.pluck(data, that.options.id)), 'null');
             _.forEach(toDelete, function (id) {
                 that.collection.remove(that.index.id()[id]);
             });
