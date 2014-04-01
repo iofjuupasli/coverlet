@@ -44,7 +44,7 @@
                 url: that.url,
                 dataType: 'json',
                 contentType: 'application/json',
-                data: mapping.toJSON(item)
+                data: mapping.toJS(item)
             });
         };
 
@@ -55,7 +55,7 @@
                 url: that.url + '/' + item.id,
                 dataType: 'json',
                 contentType: 'application/json',
-                data: mapping.toJSON(item)
+                data: mapping.toJS(item)
             });
         };
 
