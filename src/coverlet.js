@@ -5,19 +5,19 @@
     /*global define*/
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['exports', 'knockout', 'jquery', 'lodash'], factory);
+        define(['exports', 'knockout', 'knockout-mapping', 'jquery', 'lodash'], factory);
     } else if (typeof exports === 'object') {
         // CommonJS
-        factory(exports, require('knockout'), require('jquery'), require('lodash'));
+        factory(exports, require('knockout'), require('knockout-mapping'), require('jquery'), require('lodash'));
     } else {
         // Browser globals
-        if (!root.ko || !root.$ || !root._) {
-            throw new Error('knockout.js & jQuery & Lodash is required');
+        if (!root.ko || !root.ko.mapping || !root.$ || !root._) {
+            throw new Error('knockout.js & knockout-mapping & jQuery & Lodash is required');
         }
         root.coverlet = {};
-        factory(root.coverlet, root.ko, root.$, root._);
+        factory(root.coverlet, root.ko, root.ko.mapping, root.$, root._);
     }
-}(this, function (exports, ko, $, _) {
+}(this, function (exports, ko, mapping, $, _) {
     'use strict';
 
     var Rest = (function () {
@@ -302,7 +302,7 @@
                 validators: {}
             });
 
-            that.model = ko.mapping.fromJS(data);
+            that.model = mapping.fromJS(data);
 
             _.forOwn(options.validators, function (validator, key) {
                 that.model[key] = that.model[key].extend(validator);
@@ -335,7 +335,7 @@
 
         Class.prototype.map = function (data) {
             var that = this;
-            ko.mapping.fromJS(data, that.model);
+            mapping.fromJS(data, that.model);
             that.isDirty(false);
             return that;
         };
@@ -343,7 +343,7 @@
         Class.prototype.commit = function (invalid) {
             var that = this;
             if (!invalid && !that.isValid()) {
-                throw new Error('model is invalid');
+                return $.Deffered().reject('model is invalid');
             }
             return that.restClient[that.model[that.options.id]() ? 'put' : 'post'](ko.toJSON(that.model))
                 .then(function (newData) {
@@ -462,9 +462,9 @@
                 });
         };
 
-        Class.prototype.create = function () {
+        Class.prototype.create = function (data) {
             var that = this;
-            var newItem = new Model(null, that.restClient, that.options);
+            var newItem = new Model(data, that.restClient, that.options);
             that.collection.push(newItem);
             return newItem;
         };
