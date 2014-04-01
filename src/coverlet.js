@@ -424,9 +424,11 @@
                         });
                     });
                 } else {
-                    that.index[index] = _.indexBy(that.collection(), function (item) {
-                        var indexProperty = item.model[index];
-                        return indexProperty && indexProperty();
+                    that.index[index] = ko.computed(function () {
+                        _.indexBy(that.collection(), function (item) {
+                            var indexProperty = item.model[index];
+                            return indexProperty && indexProperty();
+                        });
                     });
                 }
             });
