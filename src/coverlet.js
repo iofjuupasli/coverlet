@@ -423,10 +423,12 @@
                             return indexProperty && indexProperty();
                         });
                     });
+                } else {
+                    that.index[index] = _.indexBy(that.collection(), function (item) {
+                        var indexProperty = item.model[index];
+                        return indexProperty && indexProperty();
+                    });
                 }
-                return _.indexBy(that.collection(), function (item) {
-                    return item.model[index]();
-                });
             });
         }
 
