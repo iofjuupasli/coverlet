@@ -330,7 +330,7 @@
                 if (that.isImmediateCommit() && that.isDirty() && that.isValid()) {
                     that.commit();
                 }
-            }).extend({rateLimit: that.options.rateLimit});
+            }).extend({throttle: that.options.rateLimit});
         }
 
         Class.prototype.map = function (data) {
