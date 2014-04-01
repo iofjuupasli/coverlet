@@ -400,7 +400,8 @@
             if (that.options.id) {
                 that.index.id = ko.computed(function () {
                     return _.indexBy(that.collection(), function (item) {
-                        return item.model[that.options.id]();
+                        var idProperty = item.model[that.options.id];
+                        return idProperty && idProperty();
                     });
                 });
             }
@@ -415,9 +416,11 @@
                 if (_.isArray(index) && index.length === 2) {
                     that.index[index[0] + ':' + index[1]] = ko.computed(function () {
                         return manyToManyMap(that.collection(), function (item) {
-                            return item.model[index[0]]();
+                            var indexProperty = item.model[index[0]];
+                            return indexProperty && indexProperty();
                         }, function (item) {
-                            return item.model[index[1]]();
+                            var indexProperty = item.model[index[1]];
+                            return indexProperty && indexProperty();
                         });
                     });
                 }
